@@ -18,38 +18,46 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 import Git.tableexport.exporter.CommitLogExporter;
 import Git.tableexport.model.Commit;
+import Git.tableexport.parser.GitHubExporter;
 import Git.tableexport.parser.GitLogParser;
-
 
 public class App {
 	private static Logger logger = LogManager.getLogger();
 
-	/*
-	 * public static void main(String[] args) throws IOException {
-	 * logger.info("------ Application Start LogLevel=" + logger.getLevel() +
-	 * " ------"); GitLogParser parser = new GitLogParser(); CommandLine cmd =
-	 * InitCommandLineParser(args); cmd.getOptionValue("input"); List<Commit>
-	 * parsedCommitLog =
-	 * parser.parseCommitLog(readFrom(cmd.getOptionValue("input")));
-	 * logger.info("SizeOfCommitLog: " + parsedCommitLog.size()); CommitLogExporter
-	 * exporter = new CommitLogExporter(); List<String> export =
-	 * exporter.exportCommitLog(parsedCommitLog); logger.info("SizeOfExport: " +
-	 * export.size()); write(cmd.getOptionValue("output", "output"), export); }
-	 */
-
 	public static void main(String[] args) {
-		logger.info("------ Application Start LogLevel=" + logger.getLevel() + " ------");
-		GitLogParser parser = new GitLogParser();
-		List<Commit> parsedCommitLog = parser.parseCommitLog(readFrom("vscodeAll.txt"));
-		logger.info("SizeOfCommitLog: " + parsedCommitLog.size());
-		CommitLogExporter exporter = new CommitLogExporter();
-		List<String> export = exporter.exportCommitLog(parsedCommitLog);
-		logger.info("SizeOfExport: " + export.size());
-		write("vscodeAll.csv", export);
+		logger.info("Start fetching ... ");
+		CommandLine cmd = InitCommandLineParser(args);
+		List<String> listOfRepositorys = readFrom(cmd.getOptionValue("input", "URLList.txt"));
+		for (String url : listOfRepositorys) {
+			logger.info("Cloning Repository: " + url);
+			try (Git clonedRepository = GitHubExporter.cloneRepository(url, extractRepoName(url))) {
+				List<String> gitLogRepository = GitHubExporter.gitLogRepository(clonedRepository);
+				GitLogParser parser = new GitLogParser();
+				logger.info("Parsing Repository ...");
+				List<Commit> parsedCommitLog = parser.parseCommitLog(gitLogRepository);
+				logger.info("SizeOfCommitLog: " + parsedCommitLog.size());
+				CommitLogExporter exporter = new CommitLogExporter();
+				logger.info("Export Repository ...");
+				List<String> export = exporter.exportCommitLog(parsedCommitLog);
+				logger.info("SizeOfExport: " + export.size());
+				write(extractRepoName(url) + ".csv", export);
+			} catch (GitAPIException | InterruptedException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
+		}
+
+	}
+
+	private static String extractRepoName(String url) {
+		String[] split = url.split("/");
+		return split[split.length - 2] + "_" + split[split.length - 1];
 	}
 
 	private static void write(String fileName, List<String> export) {
@@ -75,7 +83,7 @@ public class App {
 		}
 		return commitData;
 	}
-	
+
 	/**
 	 * <h1>Konfigurations-Methode CLI</h1> Initialisiert den
 	 * <b>CommandLineParser</b> mit seinen Argumenten
