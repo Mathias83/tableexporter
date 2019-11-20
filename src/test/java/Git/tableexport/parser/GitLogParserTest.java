@@ -106,8 +106,8 @@ public class GitLogParserTest {
 	@Test
 	public void extractAuthorWithNoNameStringTest() {
 		Author extractAuthor = parser.extractAuthor("Author: <maxmustermann@musterhost.de>");
-		assertTrue(extractAuthor.getName().equals("Nobody"));
-		assertTrue(extractAuthor.getEmail().equals("nobody@neverland.de"));
+		assertTrue(extractAuthor.getName().equals("NoName"));
+		assertTrue(extractAuthor.getEmail().equals("maxmustermann@musterhost.de"));
 	}
 
 	@Test

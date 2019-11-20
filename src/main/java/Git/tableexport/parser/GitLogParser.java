@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -122,9 +123,21 @@ public class GitLogParser {
 		}
 		String[] splitAuthor = string.split(": ");
 		String[] splitNameAndEmail = splitAuthor[1].split("<");
-		if (splitNameAndEmail[0].isEmpty() || !splitNameAndEmail[1].contains("@")) {
+		if (splitNameAndEmail[0].isEmpty() && !splitNameAndEmail[1].contains("@")) {
 			logger.warn("No Valid Author: " + string);
-			return new Author("NoName", string);
+			return new Author("NoName", splitNameAndEmail[1]);
+		}
+		if (splitNameAndEmail[0].isEmpty() && splitNameAndEmail[1].contains("@")) {
+			return new Author("NoName",
+					splitNameAndEmail[1].substring(0, splitNameAndEmail[1].length() - 1));
+		}
+		if (!splitNameAndEmail[0].isEmpty() && !splitNameAndEmail[1].contains("@")) {
+			return new Author(splitNameAndEmail[0].substring(0, splitNameAndEmail[0].length() - 1),
+					"NoEmail");
+		}
+		if (splitNameAndEmail[0].isEmpty() && !splitNameAndEmail[1].contains("@")) {
+			logger.warn("No Valid Author: " + string);
+			return new Author("NoName", splitNameAndEmail[1]);
 		}
 		return new Author(splitNameAndEmail[0].substring(0, splitNameAndEmail[0].length() - 1),
 				splitNameAndEmail[1].substring(0, splitNameAndEmail[1].length() - 1));
