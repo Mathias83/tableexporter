@@ -1,2 +1,5 @@
-https://github.com/graphhopper/graphhopper
-https://github.com/couchbase/couchbase-lite-core
+2;MySQL;https://github.com/mysql/mysql-server
+4;PostgreSQL;https://github.com/postgres/postgres
+5;MongoDB;https://github.com/mongodb/mongo
+7;ElasticSearch;https://github.com/elastic/elasticsearch
+8;Redis;https://github.com/antirez/redis

@@ -124,7 +124,7 @@ public class GitLogParser {
 		String[] splitNameAndEmail = splitAuthor[1].split("<");
 		if (splitNameAndEmail[0].isEmpty() || !splitNameAndEmail[1].contains("@")) {
 			logger.warn("No Valid Author: " + string);
-			return new Author("Nobody", "nobody@neverland.de");
+			return new Author("NoName", string);
 		}
 		return new Author(splitNameAndEmail[0].substring(0, splitNameAndEmail[0].length() - 1),
 				splitNameAndEmail[1].substring(0, splitNameAndEmail[1].length() - 1));
@@ -133,12 +133,12 @@ public class GitLogParser {
 	protected Commit extractCommit(String string) {
 		if (string.isEmpty() || !string.startsWith("commit ")) {
 			logger.warn("Commitstring is not Valid: " + string);
-			return new Commit("999999zzzzzzImposibleID");
+			return new Commit("999999zzzzzzImpossibleID");
 		}
 		String[] split = string.split(" ");
 		if (split.length != 2) {
 			logger.warn("Commitstring is not Valid: " + string);
-			return new Commit("999999zzzzzzImposibleID");
+			return new Commit("999999zzzzzzImpossibleID");
 		}
 		return new Commit(split[1]);
 	}

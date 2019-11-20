@@ -11,7 +11,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.errors.RevisionSyntaxException;
 
 public class GitHubExporter {
 
@@ -23,9 +22,9 @@ public class GitHubExporter {
 	public static List<String> gitLogRepository(Git git) throws InterruptedException, IOException {
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		String path = git.getRepository().getWorkTree().getAbsolutePath();
-		processBuilder.command("bash", "-c", "(cd "+path+ " && git log --numstat)");
+		processBuilder.command("bash", "-c", "(cd " + path + " && git log --numstat)");
 		Process process = processBuilder.start();
-		
+
 		StringBuilder output = new StringBuilder();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 

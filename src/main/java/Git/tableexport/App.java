@@ -30,12 +30,15 @@ public class App {
 	private static Logger logger = LogManager.getLogger();
 
 	public static void main(String[] args) {
+		
 		logger.info("Start fetching ... ");
 		CommandLine cmd = InitCommandLineParser(args);
 		List<String> listOfRepositorys = readFrom(cmd.getOptionValue("input", "URLList.txt"));
+		List<String> export = new ArrayList<String>();
 		for (String url : listOfRepositorys) {
-			logger.info("Cloning Repository: " + url);
-			try (Git clonedRepository = GitHubExporter.cloneRepository(url, extractRepoName(url))) {
+			String[] split = url.split(";");
+			logger.info("Cloning Repository: " + split[2]);
+			try (Git clonedRepository = GitHubExporter.cloneRepository(split[2], extractRepoName(split[2]))) {
 				List<String> gitLogRepository = GitHubExporter.gitLogRepository(clonedRepository);
 				GitLogParser parser = new GitLogParser();
 				logger.info("Parsing Repository ...");
@@ -43,14 +46,16 @@ public class App {
 				logger.info("SizeOfCommitLog: " + parsedCommitLog.size());
 				CommitLogExporter exporter = new CommitLogExporter();
 				logger.info("Export Repository ...");
-				List<String> export = exporter.exportCommitLog(parsedCommitLog);
+				export.addAll(exporter.exportCommitLog(parsedCommitLog,split[1]));
 				logger.info("SizeOfExport: " + export.size());
-				write(extractRepoName(url) + ".csv", export);
-			} catch (GitAPIException | InterruptedException | IOException e) {
-				// TODO Auto-generated catch block
+				write(extractRepoName(split[1]) + ".csv", export);
+			} catch (GitAPIException e) {
+				System.err.println("Cloning Interrupted");
+				e.printStackTrace();
+			} catch (InterruptedException | IOException e) {
+				System.err.println("Git log Interrupted");
 				e.printStackTrace();
 			}
-
 		}
 
 	}
@@ -95,7 +100,7 @@ public class App {
 		Options options = new Options();
 
 		Option input = new Option("i", "input", true, "input file path");
-		input.setRequired(true);
+		
 		options.addOption(input);
 
 		Option output = new Option("o", "output", true, "output file");
