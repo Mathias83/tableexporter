@@ -48,7 +48,7 @@ public class App {
 				logger.info("Export Repository ...");
 				export.addAll(exporter.exportCommitLog(parsedCommitLog,split[1]));
 				logger.info("SizeOfExport: " + export.size());
-				write(extractRepoName(split[1]) + ".csv", export);
+				
 			} catch (GitAPIException e) {
 				System.err.println("Cloning Interrupted");
 				e.printStackTrace();
@@ -57,6 +57,7 @@ public class App {
 				e.printStackTrace();
 			}
 		}
+		write("export.csv", export);
 
 	}
 
