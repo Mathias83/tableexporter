@@ -35,8 +35,8 @@ public class App {
 		CommandLine cmd = InitCommandLineParser(args);
 		List<String> listOfRepositorys = readFrom(cmd.getOptionValue("input", "URLList.txt"));
 		List<String> export = new ArrayList<String>();
-		for (String url : listOfRepositorys) {
-			String[] split = url.split(";");
+		for (String url : listOfRepositorys) {			
+			String[] split = url.split(",");
 			logger.info("Cloning Repository: " + split[2]);
 			try (Git clonedRepository = GitHubExporter.cloneRepository(split[2], extractRepoName(split[2]))) {
 				List<String> gitLogRepository = GitHubExporter.gitLogRepository(clonedRepository);
@@ -46,9 +46,9 @@ public class App {
 				logger.info("SizeOfCommitLog: " + parsedCommitLog.size());
 				CommitLogExporter exporter = new CommitLogExporter();
 				logger.info("Export Repository ...");
-				export.addAll(exporter.exportCommitLog(parsedCommitLog,split[1]));
+				export=exporter.exportCommitLog(parsedCommitLog,split[1]);
 				logger.info("SizeOfExport: " + export.size());
-				
+				write(split[1] +".csv", export);
 			} catch (GitAPIException e) {
 				System.err.println("Cloning Interrupted");
 				e.printStackTrace();
@@ -57,7 +57,7 @@ public class App {
 				e.printStackTrace();
 			}
 		}
-		write("export.csv", export);
+		
 
 	}
 

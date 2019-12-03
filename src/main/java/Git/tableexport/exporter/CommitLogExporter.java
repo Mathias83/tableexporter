@@ -1,5 +1,6 @@
 package Git.tableexport.exporter;
 
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,12 +25,13 @@ public class CommitLogExporter {
 	}
 
 	private String createLine(Commit commit, ChangedFile file,String name) {
+		     
 		StringBuilder tableLine = new StringBuilder();
 		tableLine.append(name+";");
 		tableLine.append(commit.getCommitId()+";");
 		tableLine.append(commit.getAuthor().getName()+";");
 		tableLine.append(commit.getAuthor().getEmail()+";");
-		tableLine.append(commit.getDate().toString()+";");
+		tableLine.append(commit.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).toString()+";");
 		//tableLine.append(commit.getDescription()+";");
 		tableLine.append(file.getPath().toString()+";");
 		tableLine.append(extractedChange(file));
