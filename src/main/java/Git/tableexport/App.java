@@ -29,12 +29,11 @@ import Git.tableexport.parser.GitLogParser;
 public class App {
 	private static Logger logger = LogManager.getLogger();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
 		logger.info("Start fetching ... ");
 		CommandLine cmd = InitCommandLineParser(args);
-		List<String> listOfRepositorys = readFrom(cmd.getOptionValue("input", "URLList.txt"));
-		List<String> export = new ArrayList<String>();
+		List<String> listOfRepositorys = readFrom(cmd.getOptionValue("input", "URLList.txt"));		
 		for (String url : listOfRepositorys) {			
 			String[] split = url.split(",");
 			logger.info("Cloning Repository: " + split[2]);
@@ -46,9 +45,8 @@ public class App {
 				logger.info("SizeOfCommitLog: " + parsedCommitLog.size());
 				CommitLogExporter exporter = new CommitLogExporter();
 				logger.info("Export Repository ...");
-				export=exporter.exportCommitLog(parsedCommitLog,split[1]);
-				logger.info("SizeOfExport: " + export.size());
-				write(split[1] +".csv", export);
+				exporter.exportCommitLog(parsedCommitLog,split[1]);
+				
 			} catch (GitAPIException e) {
 				System.err.println("Cloning Interrupted");
 				e.printStackTrace();

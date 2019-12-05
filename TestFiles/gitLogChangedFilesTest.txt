@@ -1,0 +1,22 @@
+commit 0bd720df61ac1c9520455ae68f71d02a8d76e030
+Author: Mark Thomas <markt@apache.org>
+Date:   Tue Nov 6 14:19:21 2018 +0000
+
+    Fix regression (NPE) caused by r1845903
+    
+    git-svn-id: https://svn.apache.org/repos/asf/tomcat/trunk@1845923 13f79535-47bb-0310-9956-ffa450edef68
+
+2	0	test/org/apache/juli/TestFileHandlerNonRotatable.java
+-	-	test/org/apache/juli/Binary1.java
+-	-	images/{ => moved}/pix.png
+
+commit 8ea043d94472f4befd3eda7125b06fee734f6eaa
+Author: Mark Thomas <markt@apache.org>
+Date:   Tue Nov 6 12:06:58 2018 +0000
+
+    Logging depends on ${catalina.base} so ensure it is created before logging is configured
+    
+    git-svn-id: https://svn.apache.org/repos/asf/tomcat/trunk@1845903 13f79535-47bb-0310-9956-ffa450edef68
+
+11	11	test/org/apache/catalina/startup/LoggingBaseTest.java
+1	1	db/namespace.h

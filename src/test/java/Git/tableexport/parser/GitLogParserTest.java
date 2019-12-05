@@ -177,5 +177,16 @@ public class GitLogParserTest {
 		}
 
 	}
+	
+	@Test
+	public void parseBinaryFilesTest() {
+		List<String> commitData = readData("TestFiles/gitLogChangedFilesTest.txt");
+		List<Commit> commits = parser.parseCommitLog(commitData);
+		assertFalse(commits.isEmpty());		
+		assertTrue(commits.size() == 2);
+		assertTrue(commits.get(0).getFiles().size() == 3);
+		assertTrue(commits.get(1).getFiles().size() == 2);
+
+	}
 
 }

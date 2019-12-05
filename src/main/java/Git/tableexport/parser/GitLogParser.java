@@ -14,6 +14,7 @@ import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jgit.util.StringUtils;
 
 import Git.tableexport.model.Author;
 import Git.tableexport.model.ChangedFile;
@@ -22,6 +23,8 @@ import Git.tableexport.model.Commit;
 public class GitLogParser {
 	List<String> fileExtensions = new ArrayList<>();
 	protected static Logger logger = LogManager.getLogger(GitLogParser.class);
+	List<String> doubleID = new ArrayList<>();
+	int length = 0;
 
 	public GitLogParser() {
 		super();
@@ -55,24 +58,26 @@ public class GitLogParser {
 		try {
 			for (Iterator<String> iterator = singleCommitMessage.iterator(); iterator.hasNext();) {
 				String string = (String) iterator.next();
-
-				if (isCommitLine(string))
+				if (string.isEmpty() || string.isBlank())
+					continue;
+				else if (isCommitLine(string))
 					commit = extractCommit(string);
-				else if (isAuthorLine(string)) 
-						commit.setAuthor(extractAuthor(string));
+				else if (isAuthorLine(string))
+					commit.setAuthor(extractAuthor(string));
 				else if (isDateLine(string))
 					commit.setDate(extractDate(string));
 				else if (isChangedFileLine(string))
-					changedFiles.add(extractChangedFile(string));							
+					changedFiles.add(extractChangedFile(string));
 				else if (!string.isEmpty())
 					commit.appendDescription(string);
-
+				else 
+					logger.warn("No case: " + string);
 			}
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 		commit.setFiles(changedFiles);
-
+		
 		return commit;
 	}
 
@@ -82,9 +87,16 @@ public class GitLogParser {
 		if (!fileExtensions.contains(extension))
 			fileExtensions.add(extension);
 		if (isNumstatOption(split))
-			return new ChangedFile(Integer.parseInt(split[0]), Integer.parseInt(split[1]),
-					Paths.get(split[2]), extension);
+			return new ChangedFile(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Paths.get(split[2]),
+					extension);
+		if (isBinaryFile(split))
+			return new ChangedFile(0, 0, Paths.get(split[2]),
+					extension);
 		return new ChangedFile(split[0].charAt(0), Paths.get(split[1]), extension);
+	}
+
+	private boolean isBinaryFile(String[] split) {		
+		return (split[0].equals("-") && split[1].equals("-"));
 	}
 
 	private String extractLanguage(String string) {
@@ -94,7 +106,7 @@ public class GitLogParser {
 	}
 
 	private boolean isNumstatOption(String[] split) {
-		return split.length > 2;
+		return (split.length > 2&& !split[0].equals("-")&&!split[1].equals("-"));
 	}
 
 	protected LocalDateTime extractDate(String string) {
@@ -118,22 +130,22 @@ public class GitLogParser {
 	protected Author extractAuthor(String string) {
 
 		if (string.isEmpty() || !string.startsWith("Author: ") || !string.contains("@")) {
-			logger.warn("No Valid Author: " + string);
-			return new Author("Nobody", "nobody@neverland.de");
+			Author a = new Author("Nobody", "nobody@neverland.de");
+			logger.warn("No Valid Author: " + string + " replaced with: " + a.toString());
+			return a;
 		}
 		String[] splitAuthor = string.split(": ");
 		String[] splitNameAndEmail = splitAuthor[1].split("<");
 		if (splitNameAndEmail[0].isEmpty() && !splitNameAndEmail[1].contains("@")) {
-			logger.warn("No Valid Author: " + string);
-			return new Author("NoName", splitNameAndEmail[1]);
+			Author a = new Author("NoName", splitNameAndEmail[1]);
+			logger.warn("No Valid Author: " + string+ " replaced with: " + a.toString());
+			return a;
 		}
 		if (splitNameAndEmail[0].isEmpty() && splitNameAndEmail[1].contains("@")) {
-			return new Author("NoName",
-					splitNameAndEmail[1].substring(0, splitNameAndEmail[1].length() - 1));
+			return new Author("NoName", splitNameAndEmail[1].substring(0, splitNameAndEmail[1].length() - 1));
 		}
 		if (!splitNameAndEmail[0].isEmpty() && !splitNameAndEmail[1].contains("@")) {
-			return new Author(splitNameAndEmail[0].substring(0, splitNameAndEmail[0].length() - 1),
-					"NoEmail");
+			return new Author(splitNameAndEmail[0].substring(0, splitNameAndEmail[0].length() - 1), "NoEmail");
 		}
 		if (splitNameAndEmail[0].isEmpty() && !splitNameAndEmail[1].contains("@")) {
 			logger.warn("No Valid Author: " + string);
@@ -153,11 +165,19 @@ public class GitLogParser {
 			logger.warn("Commitstring is not Valid: " + string);
 			return new Commit("999999zzzzzzImpossibleID");
 		}
+		if (length<10)
+			length = split[1].length();
+		if (doubleID.contains(split[1]))
+			logger.warn("Double ID: " + split[1]);
+		else
+			doubleID.add(split[1]);
+		if(length!=split[1].length())
+			logger.warn("Länger unterschiedlich: " + length + " " + split[1].length());
 		return new Commit(split[1]);
 	}
 
 	protected boolean isChangedFileLine(String string) {
-		return string.matches("^(\\d+.\\d+.|[ACDMRTUXB]{1}\\s+)([\\d\\w]+.)+");
+		return string.matches("^((\\d+\\s+)+|[ACDMRTUXB]{1}\\s+|-\\s+-\\s+)(.+.|.\\s=>\\s\\w+})+");
 	}
 
 	protected boolean isDateLine(String string) {

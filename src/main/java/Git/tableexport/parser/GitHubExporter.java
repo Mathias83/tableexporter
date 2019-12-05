@@ -7,16 +7,29 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
 public class GitHubExporter {
-
+	private static Logger logger = LogManager.getLogger();
 	public static Git cloneRepository(String URL, String repoName)
 			throws InvalidRemoteException, TransportException, GitAPIException {
-		return Git.cloneRepository().setURI(URL).setDirectory(new File("temp/" + repoName)).call();
+		try {
+			return Git.open(new File("temp/" + repoName));
+		} catch (RepositoryNotFoundException e) {
+			logger.warn("Repo doesnt exist");
+			return Git.cloneRepository().setURI(URL).setDirectory(new File("temp/" + repoName)).call();
+		} catch (IOException e) {
+			logger.error("IOException: " + e.getMessage());
+			e.printStackTrace();
+		}
+		logger.error("Return Null!");
+		return null;
 	}
 
 	public static List<String> gitLogRepository(Git git) throws InterruptedException, IOException {
