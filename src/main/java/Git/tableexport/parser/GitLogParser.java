@@ -129,11 +129,14 @@ public class GitLogParser {
 
 	protected Author extractAuthor(String string) {
 
-		if (string.isEmpty() || !string.startsWith("Author: ") || !string.contains("@")) {
+		if (string.isEmpty() || !string.startsWith("Author: ")) {
 			Author a = new Author("Nobody", "nobody@neverland.de");
 			logger.warn("No Valid Author: " + string + " replaced with: " + a.toString());
 			return a;
 		}
+		String[] splitAuthor = string.split(": ");		
+		return new Author(splitAuthor[1]);
+		/*
 		String[] splitAuthor = string.split(": ");
 		String[] splitNameAndEmail = splitAuthor[1].split("<");
 		if (splitNameAndEmail[0].isEmpty() && !splitNameAndEmail[1].contains("@")) {
@@ -152,7 +155,7 @@ public class GitLogParser {
 			return new Author("NoName", splitNameAndEmail[1]);
 		}
 		return new Author(splitNameAndEmail[0].substring(0, splitNameAndEmail[0].length() - 1),
-				splitNameAndEmail[1].substring(0, splitNameAndEmail[1].length() - 1));
+				splitNameAndEmail[1].substring(0, splitNameAndEmail[1].length() - 1));*/
 	}
 
 	protected Commit extractCommit(String string) {

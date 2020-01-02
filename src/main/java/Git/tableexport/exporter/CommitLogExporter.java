@@ -14,7 +14,7 @@ import Git.tableexport.model.Commit;
 
 public class CommitLogExporter {
 	protected static Logger logger = LogManager.getLogger(CommitLogExporter.class);
-	private static final String COLUMNHEAD = "name;commit;authorName;authorEmail;timestamp;file;change";
+	private static final String COLUMNHEAD = "name;commit;author;timestamp;file;change";
 	FileWriter fr;
 
 	public void exportCommitLog(List<Commit> parsedCommitLog, String name) throws Exception {
@@ -25,8 +25,6 @@ public class CommitLogExporter {
 		export.add(createColumnHead());
 		logger.info(parsedCommitLog.size());
 		for (Commit commit : parsedCommitLog) {
-			if (commit.getFiles().isEmpty())
-				logger.warn("empty: " + commit.getCommitId() + " Description: " + commit.getDescription());
 			for (ChangedFile file : commit.getFiles()) {				
 					createLine2(commit, file, name);
 					
@@ -42,7 +40,7 @@ public class CommitLogExporter {
 		fr.write("\n" + name + ";");
 		fr.write(commit.getCommitId() + ";");
 		fr.write(commit.getAuthor().getName() + ";");
-		fr.write(commit.getAuthor().getEmail() + ";");
+		//fr.write(commit.getAuthor().getEmail() + ";");
 		fr.write(commit.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).toString() + ";");
 		// tableLine.append(commit.getDescription()+";");
 		fr.write(file.getPath().toString() + ";");

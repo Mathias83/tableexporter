@@ -20,10 +20,11 @@ public class GitHubExporter {
 	public static Git cloneRepository(String URL, String repoName)
 			throws InvalidRemoteException, TransportException, GitAPIException {
 		try {
+			logger.info("Try to take Repo on Disk");
 			return Git.open(new File("temp/" + repoName));
 		} catch (RepositoryNotFoundException e) {
 			logger.warn("Repo doesnt exist");
-			return Git.cloneRepository().setURI(URL).setDirectory(new File("temp/" + repoName)).call();
+			return Git.cloneRepository().setURI(URL).setDirectory(new File("temp/" + repoName)).setBranch("master").call();
 		} catch (IOException e) {
 			logger.error("IOException: " + e.getMessage());
 			e.printStackTrace();
@@ -35,10 +36,9 @@ public class GitHubExporter {
 	public static List<String> gitLogRepository(Git git) throws InterruptedException, IOException {
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		String path = git.getRepository().getWorkTree().getAbsolutePath();
-		processBuilder.command("bash", "-c", "(cd " + path + " && git log --numstat)");
+		processBuilder.command("bash", "-c", "(cd " + path + " && git log --no-renames --numstat)");
 		Process process = processBuilder.start();
 
-		StringBuilder output = new StringBuilder();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
 		List<String> lines = new ArrayList<String>();

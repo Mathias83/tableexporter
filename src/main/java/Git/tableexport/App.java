@@ -1,6 +1,7 @@
 package Git.tableexport;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,23 +31,24 @@ public class App {
 	private static Logger logger = LogManager.getLogger();
 
 	public static void main(String[] args) throws Exception {
-		
+
 		logger.info("Start fetching ... ");
 		CommandLine cmd = InitCommandLineParser(args);
-		List<String> listOfRepositorys = readFrom(cmd.getOptionValue("input", "URLList.txt"));		
-		for (String url : listOfRepositorys) {			
+		List<String> listOfRepositorys = readFrom(cmd.getOptionValue("input", "URLList.txt"));
+		for (String url : listOfRepositorys) {
 			String[] split = url.split(",");
 			logger.info("Cloning Repository: " + split[2]);
 			try (Git clonedRepository = GitHubExporter.cloneRepository(split[2], extractRepoName(split[2]))) {
 				List<String> gitLogRepository = GitHubExporter.gitLogRepository(clonedRepository);
 				GitLogParser parser = new GitLogParser();
 				logger.info("Parsing Repository ...");
+				exportGitLog(gitLogRepository, extractRepoName(split[2]) + "GitLog.txt");
 				List<Commit> parsedCommitLog = parser.parseCommitLog(gitLogRepository);
 				logger.info("SizeOfCommitLog: " + parsedCommitLog.size());
 				CommitLogExporter exporter = new CommitLogExporter();
 				logger.info("Export Repository ...");
-				exporter.exportCommitLog(parsedCommitLog,split[1]);
-				
+				exporter.exportCommitLog(parsedCommitLog, split[1]);
+
 			} catch (GitAPIException e) {
 				System.err.println("Cloning Interrupted");
 				e.printStackTrace();
@@ -55,8 +57,19 @@ public class App {
 				e.printStackTrace();
 			}
 		}
-		
 
+	}
+
+	private static void exportGitLog(List<String> gitLogRepository, String fileName) {
+		try (FileWriter fr = new FileWriter(fileName, true)) {
+
+			for (String str : gitLogRepository) {
+				fr.write(str + System.lineSeparator());
+			}
+			fr.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static String extractRepoName(String url) {
@@ -99,7 +112,7 @@ public class App {
 		Options options = new Options();
 
 		Option input = new Option("i", "input", true, "input file path");
-		
+
 		options.addOption(input);
 
 		Option output = new Option("o", "output", true, "output file");

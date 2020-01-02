@@ -12,6 +12,10 @@ public class Author {
 		this.name = name;
 		this.email = email;
 	}
+	public Author(String nameAndEmail) {
+		super();
+		this.name = nameAndEmail;
+	}
 
 	public Author(Author author) {
 		super();
