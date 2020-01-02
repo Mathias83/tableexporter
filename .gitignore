@@ -1,3 +1,7 @@
+*.csv
+*.txt
+!URLList.txt
+
 ## Python txt-Dateien
 Python/*.txt
 
