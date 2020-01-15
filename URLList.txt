@@ -1,1 +1,1 @@
-23,Couchbase,https://github.com/couchbase/ns_server
+23,Couchbase,https://github.com/couchbase/ns_server2

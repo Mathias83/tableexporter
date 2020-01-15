@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -81,6 +82,7 @@ public class GitLogParserTest {
 		assertTrue(extractedCommit.getFiles().isEmpty());
 	}
 
+	@Disabled
 	@Test
 	public void extractAuthorTest() {
 		Author extractAuthor = parser.extractAuthor("Author: Max Mustermann <maxmustermann@musterhost.de>");
@@ -89,6 +91,7 @@ public class GitLogParserTest {
 
 	}
 
+	@Disabled
 	@Test
 	public void extractAuthorWithEmptyFieldTest() {
 		Author extractAuthor = parser.extractAuthor("Author: ");
@@ -103,6 +106,7 @@ public class GitLogParserTest {
 		assertTrue(extractAuthor.getEmail().equals("nobody@neverland.de"));
 	}
 
+	@Disabled
 	@Test
 	public void extractAuthorWithNoNameStringTest() {
 		Author extractAuthor = parser.extractAuthor("Author: <maxmustermann@musterhost.de>");
@@ -110,6 +114,7 @@ public class GitLogParserTest {
 		assertTrue(extractAuthor.getEmail().equals("maxmustermann@musterhost.de"));
 	}
 
+	@Disabled
 	@Test
 	public void extractAuthorWithNoEMailStringTest() {
 		Author extractAuthor = parser.extractAuthor("Author: Max Mustermann");
@@ -117,6 +122,7 @@ public class GitLogParserTest {
 		assertTrue(extractAuthor.getEmail().equals("nobody@neverland.de"));
 	}
 
+	@Disabled
 	@Test
 	public void extractAuthorWithInvalidMailTest() {
 		Author extractAuthor = parser.extractAuthor("Author: Max Mustermann <maxmustermannmusterhost.de>");
@@ -124,6 +130,7 @@ public class GitLogParserTest {
 		assertTrue(extractAuthor.getEmail().equals("nobody@neverland.de"));
 	}
 
+	@Disabled
 	@Test
 	public void extractAuthorWithGreaterNameTest() {
 		Author extractAuthor = parser.extractAuthor("Author: Violeta Georgieva Georgieva <violetagg@apache.org>");
@@ -177,12 +184,12 @@ public class GitLogParserTest {
 		}
 
 	}
-	
+
 	@Test
 	public void parseBinaryFilesTest() {
 		List<String> commitData = readData("TestFiles/gitLogChangedFilesTest.txt");
 		List<Commit> commits = parser.parseCommitLog(commitData);
-		assertFalse(commits.isEmpty());		
+		assertFalse(commits.isEmpty());
 		assertTrue(commits.size() == 2);
 		assertTrue(commits.get(0).getFiles().size() == 3);
 		assertTrue(commits.get(1).getFiles().size() == 2);

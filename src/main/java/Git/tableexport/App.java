@@ -28,7 +28,7 @@ import Git.tableexport.parser.GitHubExporter;
 import Git.tableexport.parser.GitLogParser;
 
 public class App {
-	private static Logger logger = LogManager.getLogger();
+	private static Logger logger = LogManager.getLogger(App.class);
 
 	public static void main(String[] args) throws Exception {
 

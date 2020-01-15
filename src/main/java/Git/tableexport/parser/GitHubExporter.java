@@ -16,7 +16,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
 public class GitHubExporter {
-	private static Logger logger = LogManager.getLogger();
+	private static Logger logger = LogManager.getLogger(GitHubExporter.class);
 	public static Git cloneRepository(String URL, String repoName)
 			throws InvalidRemoteException, TransportException, GitAPIException {
 		try {
